@@ -3,14 +3,14 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
-from datetime import datetime
+from datetime import datetime, timedelta
 import models, schemas, security
 from database import engine, get_db
 
 # Inicializar BD
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Hospital SaaS API", version="2.0.0 (Secure)")
+app = FastAPI(title="MedLinkNet API", version="2.0.0 (Secure)")
 
 # CORS
 origins = ["*"]
@@ -175,3 +175,94 @@ def read_history(product_id: int, db: Session = Depends(get_db)):
         output.append(txn_dict)
     
     return output
+
+
+@app.get("/dashboard")
+def get_dashboard_stats(db: Session = Depends(get_db)):
+    # 1. KPIs Generales
+    total_products = db.query(models.Product).count()
+    
+    # 2. Calcular bajo stock (esto es mejor hacerlo con SQL directo en prod, pero en Python sirve por ahora)
+    products = db.query(models.Product).all()
+    low_stock_count = 0
+    for p in products:
+        total_qty = sum(b.quantity for b in p.batches)
+        if total_qty < p.min_stock:
+            low_stock_count += 1
+            
+    # 3. Lotes por vencer (próximos 30 días)
+    thirty_days_ahead = datetime.now().date() + timedelta(days=30)
+    expiring_soon = db.query(models.Batch).filter(
+        models.Batch.expiration_date <= thirty_days_ahead,
+        models.Batch.quantity > 0
+    ).count()
+
+    # 4. Últimos 5 movimientos globales (con nombre de usuario)
+    recent_txs = db.query(models.Transaction, models.User.username)\
+        .join(models.User, models.Transaction.user_id == models.User.id)\
+        .order_by(models.Transaction.timestamp.desc())\
+        .limit(5).all()
+        
+    formatted_txs = []
+    for txn, user in recent_txs:
+        t = txn.__dict__
+        t["username"] = user
+        formatted_txs.append(t)
+
+    return {
+        "total_products": total_products,
+        "low_stock": low_stock_count,
+        "expiring_batches": expiring_soon,
+        "recent_transactions": formatted_txs
+    }
+
+# --- GESTIÓN DE ERRORES Y CORRECCIONES ---
+
+@app.delete("/products/{product_id}")
+def delete_product(product_id: int, db: Session = Depends(get_db)):
+    # Buscamos el producto
+    product = db.query(models.Product).filter(models.Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=404, detail="Producto no encontrado")
+    
+    # SQLAlchemy borrará en cascada los lotes y transacciones si está configurado,
+    # pero por seguridad lo hacemos manual o confiamos en la FK.
+    db.delete(product)
+    db.commit()
+    return {"msg": "Producto eliminado correctamente"}
+
+@app.delete("/batches/{batch_id}")
+def delete_batch(batch_id: int, db: Session = Depends(get_db)):
+    batch = db.query(models.Batch).filter(models.Batch.id == batch_id).first()
+    if not batch:
+        raise HTTPException(status_code=404, detail="Lote no encontrado")
+    
+    # Advertencia: Borrar un lote elimina su historial de entradas.
+    # Si ya se usó para dispensar, esas transacciones quedarán huérfanas o se borrarán.
+    db.delete(batch)
+    db.commit()
+    return {"msg": "Lote eliminado"}
+
+@app.post("/transactions/{transaction_id}/revert")
+def revert_transaction(transaction_id: int, db: Session = Depends(get_db)):
+    # 1. Buscar la transacción
+    txn = db.query(models.Transaction).filter(models.Transaction.id == transaction_id).first()
+    if not txn:
+        raise HTTPException(status_code=404, detail="Transacción no encontrada")
+    
+    # 2. Solo permitimos revertir SALIDAS (Dispensaciones) por ahora
+    if txn.transaction_type != "OUT":
+        raise HTTPException(status_code=400, detail="Solo se pueden revertir salidas. Para entradas, elimine el lote.")
+
+    # 3. Devolver el stock al lote original
+    batch = db.query(models.Batch).filter(models.Batch.id == txn.batch_id).first()
+    if batch:
+        batch.quantity += txn.quantity # Regresamos la medicina
+    else:
+        raise HTTPException(status_code=400, detail="El lote original ya no existe, no se puede revertir.")
+
+    # 4. Eliminar el registro de la transacción (Es como si nunca hubiera pasado)
+    db.delete(txn)
+    db.commit()
+    
+    return {"msg": "Transacción revertida y stock restaurado"}
