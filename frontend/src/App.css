@@ -1,0 +1,332 @@
+:root {
+  /* Medical Palette */
+  --primary: #0284c7;       /* Azul Médico */
+  --primary-dark: #0369a1;
+  --secondary: #64748b;     /* Gris Acero */
+  --bg-app: #f8fafc;        /* Fondo gris muy suave y limpio */
+  --surface: #ffffff;
+  
+  /* Status Colors */
+  --success: #10b981;
+  --success-bg: #ecfdf5;
+  --warning: #f59e0b;
+  --warning-bg: #fffbeb;
+  --danger: #ef4444;
+  --danger-bg: #fef2f2;
+  
+  /* UI Elements */
+  --border: #e2e8f0;
+  --radius: 8px;
+  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-app);
+}
+
+/* IMPORTANTE: Esto arregla el problema de "pegado a la izquierda" */
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: block; /* Vite a veces pone flex aquí, lo quitamos */
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #334155;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- LOGIN SCREEN (Centrado total) --- */
+.login-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e0f2fe 0%, #f1f5f9 100%);
+}
+
+.login-card {
+  background: var(--surface);
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+
+.login-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+/* --- MAIN LAYOUT --- */
+.app-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  background: var(--surface);
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.header-title h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.header-meta {
+  font-size: 0.875rem;
+  color: var(--secondary);
+}
+
+.btn-logout {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-logout:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* --- FORMS & CARDS --- */
+.card {
+  background: var(--surface);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr auto;
+  gap: 15px;
+  align-items: end;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--secondary);
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* --- TABLE STYLES --- */
+.table-container {
+  overflow-x: auto;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+thead th {
+  background-color: #f8fafc;
+  color: #475569;
+  font-weight: 600;
+  padding: 1rem;
+  border-bottom: 2px solid var(--border);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background-color 0.1s;
+}
+
+tbody tr:hover {
+  background-color: #f8fafc;
+}
+
+td {
+  padding: 1rem;
+  vertical-align: top;
+  color: #334155;
+}
+
+/* --- BADGES & STATUS --- */
+.sku-badge {
+  font-family: monospace;
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.stock-indicator {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.stock-high { color: var(--success); }
+.stock-low { color: var(--danger); }
+
+.low-stock-alert {
+  display: inline-block;
+  font-size: 0.75rem;
+  background: var(--danger-bg);
+  color: var(--danger);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* --- ACTION PANELS (Inside Table) --- */
+.batch-list {
+  max-height: 120px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: #fcfcfc;
+}
+
+.batch-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 0.85rem;
+}
+
+.batch-item:last-child { border-bottom: none; }
+
+.action-row {
+  display: flex;
+  gap: 8px;
+  background: #f1f5f9;
+  padding: 8px;
+  border-radius: 6px;
+  align-items: center;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-add { background: var(--success); color: white; }
+.btn-add:hover { background: #059669; }
+
+.btn-dispense { background: var(--danger); color: white; }
+.btn-dispense:hover { background: #dc2626; }
+
+.btn-audit {
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--secondary);
+  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.btn-audit:hover { border-color: var(--primary); color: var(--primary); }
+
+/* --- AUDIT LOG --- */
+.audit-log {
+  margin-top: 10px;
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px;
+  font-size: 0.8rem;
+}
+
+.audit-entry {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  border-bottom: 1px dashed #e2e8f0;
+}
+
+.audit-in { color: var(--success); font-weight: bold; }
+.audit-out { color: var(--danger); font-weight: bold; }

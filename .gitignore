@@ -1,0 +1,24 @@
+# --- FRONTEND ---
+node_modules/
+dist/
+.env
+.env.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- BACKEND ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+.pytest_cache/
+
+# --- BASE DE DATOS (IMPORTANTE) ---
+pg_data/
+*.sqlite3
+
+# --- IDE & OS ---
+.DS_Store
+.vscode/
