@@ -8,7 +8,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
     hashed_password = Column(String)
-    role = Column(String, default="staff") # admin, nurse, pharmacist
+    role = Column(String, default="staff")
     is_active = Column(Boolean, default=True)
 
 class Product(Base):
@@ -19,12 +19,14 @@ class Product(Base):
     description = Column(String, nullable=True)
     min_stock = Column(Integer, default=10)
     requires_prescription = Column(Boolean, default=False)
+    # Cascade ya estaba aquí, esto permite borrar lotes al borrar producto
     batches = relationship("Batch", back_populates="product", cascade="all, delete-orphan")
 
 class Batch(Base):
     __tablename__ = "batches"
     id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, ForeignKey("products.id"))
+    # AGREGADO: ondelete="CASCADE"
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"))
     batch_number = Column(String)
     expiration_date = Column(Date)
     quantity = Column(Integer)
@@ -33,9 +35,10 @@ class Batch(Base):
 class Transaction(Base):
     __tablename__ = "transactions"
     id = Column(Integer, primary_key=True, index=True)
-    product_id = Column(Integer, ForeignKey("products.id"))
-    batch_id = Column(Integer, ForeignKey("batches.id"), nullable=True)
-    user_id = Column(Integer, ForeignKey("users.id")) # <--- NUEVO: Quién lo hizo
+    # AGREGADO: ondelete="CASCADE" en ambos campos
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"))
+    batch_id = Column(Integer, ForeignKey("batches.id", ondelete="CASCADE"), nullable=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
     transaction_type = Column(String) # IN / OUT
     quantity = Column(Integer)
     timestamp = Column(DateTime, default=datetime.utcnow)
