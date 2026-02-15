@@ -1,0 +1,73 @@
+version: '3.8'
+
+# Nombre del Proyecto (para que se agrupen bonito en Docker)
+name: medlinknet
+
+services:
+  # --- BASE DE DATOS ---
+  db:
+    image: postgres:16-alpine
+    container_name: medlinknet_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secure_password_dev
+      POSTGRES_DB: medlinknet_db
+    volumes:
+      # Ruta física en tu servidor
+      - /home/midnai/projects/medlinknet/pg_data:/var/lib/postgresql/data
+    networks:
+      - medlinknet_net
+    ports:
+      - "5432:5432"
+
+  # --- PGADMIN (Gestión visual de DB) ---
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: medlinknet_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: patohacker458@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    networks:
+      - medlinknet_net
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+  # --- BACKEND API ---
+  api:
+    image: python:3.11-slim
+    container_name: medlinknet_api
+    working_dir: /app
+    # Instala dependencias y arranca
+    command: sh -c "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    volumes:
+      - /home/midnai/projects/medlinknet/backend:/app
+    networks:
+      - medlinknet_net
+    ports:
+      - "8800:8000"
+    depends_on:
+      - db
+    environment:
+      # Conexión interna a la DB
+      DATABASE_URL: postgresql://admin:secure_password_dev@db:5432/medlinknet_db
+
+  # --- FRONTEND WEB ---
+  web:
+    image: node:20-alpine
+    container_name: medlinknet_web
+    working_dir: /app
+    command: npm run dev
+    volumes:
+      - /home/midnai/projects/medlinknet/frontend:/app
+    networks:
+      - medlinknet_net
+    ports:
+      - "9500:5173"
+
+networks:
+  medlinknet_net:
+    driver: bridge
