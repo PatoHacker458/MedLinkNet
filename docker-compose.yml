@@ -10,9 +10,9 @@ services:
     container_name: medlinknet_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: secure_password_dev
-      POSTGRES_DB: medlinknet_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       # Ruta física en tu servidor
       - /home/midnai/projects/medlinknet/pg_data:/var/lib/postgresql/data
