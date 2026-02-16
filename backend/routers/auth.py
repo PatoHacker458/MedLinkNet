@@ -1,10 +1,18 @@
+import sys
+import os
+# Truco para que Python encuentre la carpeta padre 'backend' y sus archivos
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
 from typing import Annotated
 
-import models, schemas, security
+# Importamos los módulos locales
+import models
+import schemas
+import security
 from database import get_db
 
 router = APIRouter(tags=["Authentication"])
@@ -28,7 +36,10 @@ async def login_for_access_token(
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-@router.post("/users/", response_model=schemas.User)
+# --- CORRECCIÓN AQUÍ ---
+# Antes: response_model=schemas.User (Error porque no existe)
+# Ahora: response_model=schemas.UserOut (Correcto)
+@router.post("/users/", response_model=schemas.UserOut)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.username == user.username).first()
     if db_user:
@@ -41,7 +52,6 @@ def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.refresh(db_user)
     return db_user
 
-# Setup inicial (Este lo dejamos aquí para poder llamarlo fácil)
 @router.post("/setup/create-admin")
 def create_initial_admin(db: Session = Depends(get_db)):
     admin = db.query(models.User).filter(models.User.username == "admin").first()

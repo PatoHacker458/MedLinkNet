@@ -58,6 +58,8 @@ class TransactionOut(BaseModel):
     quantity: int
     timestamp: datetime
     user_id: int
+    batch_id: Optional[int] = None
+    product_id: int
     username: str # Para mostrar el nombre en el frontend
     class Config:
         from_attributes = True

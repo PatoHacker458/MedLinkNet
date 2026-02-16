@@ -128,7 +128,7 @@ def dispense_product(
     db.commit()
     return {"msg": "Dispensación exitosa"}
 
-@router.get("/transactions/{product_id}", response_model=List[schemas.TransactionResponse])
+@router.get("/transactions/{product_id}", response_model=List[schemas.TransactionOut])
 def get_history(
     product_id: int,
     db: Session = Depends(get_db),
@@ -138,7 +138,7 @@ def get_history(
         models.Transaction.product_id == product_id
     ).order_by(models.Transaction.timestamp.desc()).all()
     
-    # Mapeo manual para incluir el username
+    # Mapeo manual para incluir el username (el resto lo hace Pydantic)
     return [
         {
             "id": t.id,
@@ -147,6 +147,7 @@ def get_history(
             "timestamp": t.timestamp,
             "batch_id": t.batch_id,
             "product_id": t.product_id,
+            "user_id": t.user_id,
             "username": t.user.username if t.user else "Desconocido"
         }
         for t in transactions
