@@ -1,29 +1,26 @@
-// src/App.tsx
 import { useEffect, useState } from 'react';
 import './App.css';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import Inventory from './components/Inventory';
-import { DashboardStats, Product } from './types';
 
-const API_URL = "http://100.78.67.58:8800";
+// CORRECCIÓN: Agregar 'type'
+import type { DashboardStats, Product } from './types';
+
+const API_URL = "http://100.78.67.58:8800"; // Asegúrate que esta IP sea correcta para ti
 
 function App() {
-  // --- GLOBAL STATE ---
   const [token, setToken] = useState<string | null>(localStorage.getItem('hospital_token'));
   const [currentView, setCurrentView] = useState<'dashboard' | 'inventory'>('dashboard');
   const [filterType, setFilterType] = useState<'all' | 'low_stock' | 'expiring'>('all');
 
-  // --- DATA STATE ---
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   
-  // --- LOGIN STATE ---
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  // --- AUTH FETCH WRAPPER (Se pasa a los componentes) ---
   const authFetch = async (endpoint: string, options: RequestInit = {}) => {
     const headers = { ...options.headers, 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
     try {
@@ -59,7 +56,6 @@ function App() {
 
   useEffect(() => { if (token) fetchData(); }, [token]);
 
-  // --- RENDER LOGIN ---
   if (!token) {
     return (
       <div className="login-container">
@@ -76,7 +72,6 @@ function App() {
     );
   }
 
-  // --- RENDER MAIN LAYOUT ---
   return (
     <div style={{ display: 'flex', height: '100vh', width: '100vw', background: 'var(--bg-app)', overflow: 'hidden' }}>
       <Sidebar 

@@ -1,6 +1,7 @@
-// src/components/Dashboard.tsx
 import { Package, AlertTriangle, TrendingDown, User } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
+// CORRECCIÓN: Agregar 'type'
 import type { DashboardStats, Product, Batch } from '../types';
 
 interface DashboardProps {

@@ -1,6 +1,8 @@
-// src/components/Inventory.tsx
 import { useState } from 'react';
+import type { FormEvent } from 'react'; // <--- Importamos el tipo específico
 import { Search, Plus, Trash2, RotateCcw, XCircle } from 'lucide-react';
+
+// CORRECCIÓN: Usamos 'import type'
 import type { Product, Batch, Transaction } from '../types';
 
 interface InventoryProps {
@@ -12,7 +14,6 @@ interface InventoryProps {
 }
 
 export default function Inventory({ products, filterType, setFilterType, fetchData, authFetch }: InventoryProps) {
-  // Estado local que antes ensuciaba App.tsx
   const [searchTerm, setSearchTerm] = useState('');
   const [newProd, setNewProd] = useState({ name: '', sku: '', min_stock: 10 });
   const [batchForms, setBatchForms] = useState<{ [key: number]: { qty: string, exp: string, num: string } }>({});
@@ -20,12 +21,12 @@ export default function Inventory({ products, filterType, setFilterType, fetchDa
   const [history, setHistory] = useState<{ [key: number]: Transaction[] }>({});
   const [showHistory, setShowHistory] = useState<{ [key: number]: boolean }>({});
 
-  // Helpers internos
   const getTotalStock = (batches: Batch[]) => batches.reduce((acc, b) => acc + b.quantity, 0);
   const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('es-MX', {day: '2-digit', month: '2-digit', hour: '2-digit', minute:'2-digit'});
 
   // --- ACTIONS ---
-  const handleCreateProduct = async (e: React.FormEvent) => {
+  // CORRECCIÓN: Usamos 'FormEvent' directamente, sin 'React.'
+  const handleCreateProduct = async (e: FormEvent) => {
     e.preventDefault();
     if (!newProd.name) return;
     await authFetch('/products/', { method: 'POST', body: JSON.stringify(newProd) });
@@ -103,7 +104,7 @@ export default function Inventory({ products, filterType, setFilterType, fetchDa
         </div>
       </header>
 
-      {/* FORMULARIO CREAR PRODUCTO */}
+      {/* CREATE PRODUCT */}
       <div className="card" style={{ marginBottom: '30px' }}>
           <h4 style={{marginTop:0, display:'flex', alignItems:'center', gap:'10px'}}><Plus size={16}/> Nuevo Producto</h4>
           <form onSubmit={handleCreateProduct} className="form-grid">
@@ -114,7 +115,7 @@ export default function Inventory({ products, filterType, setFilterType, fetchDa
           </form>
       </div>
 
-      {/* TABLA DE PRODUCTOS */}
+      {/* TABLE */}
       <div className="table-container">
         <table>
             <thead><tr><th>SKU / Producto</th><th>Stock</th><th>Gestión de Lotes</th><th>Dispensar</th></tr></thead>
